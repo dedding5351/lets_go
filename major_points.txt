@@ -1,0 +1,7 @@
+1. Statically Typed
+2. Strongly Typed
+3. GO is Compiled
+4. Fast Compile Time
+5. Built In Concurrency
+    - Go Routines
+6. Simplicity
