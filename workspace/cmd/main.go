@@ -1,6 +1,7 @@
 package main
 import "fmt"
 import "errors"
+import "strings"
 // import "unicode/utf8"
 
 func main() {
@@ -160,10 +161,11 @@ func main() {
 	}
 
 	// No while loop in go, must use for to achieve
-
 	for i := 0; i < 10; i++ {
 		fmt.Println(i)
 	}
+	stringsNotes()
+	structsAndTypes()
 }
 
 func printMe(printValue string) {
@@ -180,4 +182,83 @@ func intDivision(numerator int, denominator int) (int, int, error) {
 	var result int = numerator / denominator
 	var remainder int = numerator % denominator
 	return result, remainder, err
+}
+
+func stringsNotes() {
+	var myString = []rune("resume") // Important to note that if this was type string, then iterating over would reveal ascii and count bytes
+	for index, value := range myString {
+		fmt.Println(index, value)
+	}
+
+	var myRune = 'a'
+	fmt.Println(myRune)
+
+	var strSlice = []string{"h", "e", "l", "l", "o"}
+	var catStr = ""
+	for index := range strSlice {
+		catStr += strSlice[index]
+	}
+	fmt.Printf("\n%v", catStr)
+
+	// Or use string builder
+
+	var strBuilder strings.Builder
+	for i := range strSlice {
+		strBuilder.WriteString(strSlice[i])
+	}
+	var newStr = strBuilder.String()
+	fmt.Println(newStr)
+}
+
+type gasEngine struct {
+	mpg uint8
+	gallons uint8
+	owner
+}
+
+type electricEngine struct {
+	mpkwh uint8
+	kwh uint8
+}
+
+type engine interface {
+	milesLeft() uint8
+}
+
+type owner struct {
+	name string
+}
+
+
+func structsAndTypes() {
+	var engine gasEngine = gasEngine{25, 15, owner{"Tenchi"}}
+
+	//Anon struct
+	var myEngine2 = struct {
+		mpg uint8
+		gallons uint8
+	}{25, 15} // Must be defined and initialized in one go
+	fmt.Println(myEngine2.mpg, myEngine2.gallons)
+
+	fmt.Println(engine.mpg, engine.gallons, engine.name)
+
+	var myElectricEngine electricEngine = electricEngine{100, 100}
+
+	canMakeIt(myElectricEngine, 200)
+}
+
+func (e gasEngine) milesLeft() uint8 {
+	return e.gallons * e.mpg
+}
+
+func (e electricEngine) milesLeft() uint8 {
+	return e.kwh * e.mpkwh
+}
+
+func canMakeIt(e engine, miles uint8) {
+	if miles <= e.milesLeft() {
+		fmt.Println("You got it!")
+	} else {
+		fmt.Println("Get some gas!")
+	}
 }
