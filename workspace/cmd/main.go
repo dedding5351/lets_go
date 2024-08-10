@@ -166,6 +166,7 @@ func main() {
 	}
 	stringsNotes()
 	structsAndTypes()
+	pointers()
 }
 
 func printMe(printValue string) {
@@ -261,4 +262,20 @@ func canMakeIt(e engine, miles uint8) {
 	} else {
 		fmt.Println("Get some gas!")
 	}
+}
+
+
+
+func pointers() {
+	var p *int32 = new(int32) // Points to another memory address, ensure pointer is not nil
+	var i int32
+
+	fmt.Printf("The value p points to is: %v\n", *p) // dereferencing, will geet the value
+	*p = 10 // Will set the value that p points to
+
+	p = &i
+	*p = 1
+	fmt.Printf("The value p points to is: %v\n", *p)
+	fmt.Printf("The value of i is: %v\n", i)
+
 }
