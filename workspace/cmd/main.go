@@ -2,6 +2,9 @@ package main
 import "fmt"
 import "errors"
 import "strings"
+// import "math/rand"
+import "time"
+import "sync"
 // import "unicode/utf8"
 
 func main() {
@@ -167,6 +170,7 @@ func main() {
 	stringsNotes()
 	structsAndTypes()
 	pointers()
+	goRoutines()
 }
 
 func printMe(printValue string) {
@@ -278,4 +282,81 @@ func pointers() {
 	fmt.Printf("The value p points to is: %v\n", *p)
 	fmt.Printf("The value of i is: %v\n", i)
 
+	var slice = []int32{1, 2, 3}
+	var sliceCopy = slice
+	sliceCopy[2] = 4
+	fmt.Println(slice)
+	fmt.Println(sliceCopy)
+
+	// Notice that both slices have changed, slices under the hood use pointers - they refer to the same data.
+
+	var thing1 = [5]float64{1, 2, 3, 4, 5}
+	fmt.Printf("\n The memory location of the thing1 array is: %p", &thing1)
+	var result [5]float64 = square(thing1)
+	fmt.Printf("\n The result is: %v", result)
+	fmt.Printf("\n The value of thing1 is: %v", thing1)
+	// Note that this does not change thing1, we are using twice as much memory since we create a copy of thing1.
+
+	// Instead use pointer
+	fmt.Printf("\n The memory location of the thing1 array is: %p", &thing1)
+	var resultPoint *[5]float64 = squareWithPointer(&thing1)
+	fmt.Printf("\n The result is: %v", *resultPoint)
+	fmt.Printf("\n The value of thing1 is: %v", thing1)
+
+}
+
+func square(thing2 [5]float64) [5]float64 {
+	for i := range thing2 {
+		thing2[i] = thing2[i] * thing2[i]
+	}
+	return thing2
+}
+
+func squareWithPointer(thing2 *[5]float64) *[5]float64 {
+	for i := range thing2 {
+		thing2[i] = thing2[i] * thing2[i]
+	}
+	return thing2
+}
+
+var dbData = []string{"id1", "id2", "id3", "id4", "id5"}
+var wg = sync.WaitGroup{}
+var results = []string{}
+var mutex = sync.RWMutex{}
+
+func goRoutines() {
+	// Concurrency - multiple tasks running at the same time, not the same as parallelism exactly
+	t0 := time.Now()
+	for i := 0; i < len(dbData); i++ {
+		wg.Add(1)
+		go dbCall(i)
+	}
+	wg.Wait()
+	fmt.Printf("\nTotal execution time: %v", time.Since(t0))
+	fmt.Printf("\nThe results are %v", results)
+}
+
+
+func dbCall(i int) {
+	var delay float32 = 2000
+	time.Sleep(time.Duration(delay) * time.Millisecond)
+	fmt.Println("The result from the DB is:" , dbData[i])
+
+	// Critical section
+	// Where you put the lock matters
+	save(dbData[i])
+	log()
+	wg.Done()
+}
+
+func save(result string) {
+	mutex.Lock()
+	results = append(results, result)
+	mutex.Unlock()
+}
+
+func log() {
+	mutex.RLock()
+	fmt.Printf("\nThe current results are: %v", results)
+	mutex.RUnlock()
 }
